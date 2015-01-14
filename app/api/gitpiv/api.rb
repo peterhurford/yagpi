@@ -34,7 +34,7 @@ module Gitpiv
     desc 'Receive PR information from GitHub'
     post '/github_hook' do
       github_check_ping = params['zen']
-      return {status: 'ping_received'} if github_check_ping == "zen"
+      return {status: 'ping_received'} if params['zen'] == 'Responsive is better than fast.'
 
       github_payload = params['pull_request']
       error!('No payload', 500) unless github_payload.present?
