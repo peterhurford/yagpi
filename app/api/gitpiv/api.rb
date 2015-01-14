@@ -12,11 +12,6 @@ module Gitpiv
         regex_for_pivotal_id(body) || regex_for_pivotal_id(branch)
       end
 
-      def pivotal_slug
-        error!('PIVOTAL_PROJECT_ID not set', 500) unless ENV['PIVOTAL_PROJECT_ID'].present?
-        "projects/#{ENV['PIVOTAL_PROJECT_ID']}"
-      end
-
       def connect_to_pivotal!
         error!('PIVOTAL_API_KEY not set', 500) unless ENV['PIVOTAL_API_KEY'].present?
         @conn ||= RestClient::Resource.new("https://www.pivotaltracker.com/services/v5", :headers => {'X-TrackerToken' => ENV['PIVOTAL_API_KEY'], 'Content-Type' => 'application/json'})
