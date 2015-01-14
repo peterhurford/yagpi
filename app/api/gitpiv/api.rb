@@ -21,11 +21,13 @@ module Gitpiv
     post '/github_hook' do
       github_body = params['pull_request']['body']
       github_branch = params['pull_request']['head']['ref']
+      github_action = params['action']
+      error!('No action', 500) unless github_action.present?
       error!('No body', 500) unless github_body.present?
       error!('No branch', 500) unless github_body.present?
       pivotal_id = find_pivotal_id(github_body, github_branch)
       {
-        action: params['action'],
+        action: github_action,
         pivotal_id: pivotal_id
       }
     end
