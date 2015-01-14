@@ -3,6 +3,15 @@ module Gitpiv
     version 'v1'
     format :json
 
+    helpers do
+      def regex_for_pivotal_id(what)
+        what[/[0-9]{7,}/]
+      end
+      def find_pivotal_id(body, branch)
+        regex_for_pivotal_id(body) || regex_for_pivotal_id(branch)
+      end
+    end
+
     desc 'Test API'
     get '/status' do
       {status: 'OK'}
@@ -10,7 +19,11 @@ module Gitpiv
 
     desc 'Receive PR information from GitHub'
     post '/github_hook' do
-      {status: 'OK'}
+      pivotal_id = find_pivotal_id(params['body'], params['head']['ref'])
+      {
+        action: params['action'],
+        pivotal_id: pivotal_id
+      }
     end
   end
 end
