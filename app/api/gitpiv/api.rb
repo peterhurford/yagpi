@@ -49,7 +49,7 @@ module Gitpiv
       if github_action == "opened"
         change_story_state(pivotal_id, github_pr_url, github_author, 'finished')
         pivotal_action_taken = "finish"
-      elsif github_action == "merged"
+      elsif github_action == "closed"
         change_story_state(pivotal_id, github_pr_url, github_author, 'delivered')
         pivotal_action_taken = "deliver"
       else
