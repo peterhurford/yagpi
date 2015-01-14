@@ -33,12 +33,17 @@ module Gitpiv
 
     desc 'Receive PR information from GitHub'
     post '/github_hook' do
-      github_body = params['pull_request']['body']
-      github_branch = params['pull_request']['head']['ref']
-      github_action = params['action']
-      github_pr_url = params['pull_request']['html_url']
-      github_author = params['pull_request']['user']['login']
+      github_check_ping = params['zen']
+      return {status: 'ping_received'} if github_check_ping == "zen"
 
+      github_payload = params['pull_request']
+      error!('No payload', 500) unless github_payload.present?
+
+      github_body = github_payload['body']
+      github_branch = github_payload['head']['ref']
+      github_action = params['action']
+      github_pr_url = github_payload['html_url']
+      github_author = github_payload['user']['login']
       error!('No action', 500) unless github_action.present?
       error!('No branch', 500) unless github_branch.present?
       error!('No PR URL', 500) unless github_pr_url.present?
