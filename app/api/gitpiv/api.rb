@@ -4,7 +4,7 @@ module Gitpiv
     format :json
 
     desc 'Test API'
-    get '/test_api' do
+    get '/status' do
       {status: 'OK'}
     end
 
