@@ -19,7 +19,11 @@ module Gitpiv
 
     desc 'Receive PR information from GitHub'
     post '/github_hook' do
-      pivotal_id = find_pivotal_id(params['body'], params['head']['ref'])
+      github_body = params['pull_request']['body']
+      github_branch = params['pull_request']['head']['ref']
+      error!('No body', 500) unless github_body.present?
+      error!('No branch', 500) unless github_body.present?
+      pivotal_id = find_pivotal_id(github_body, github_branch)
       {
         action: params['action'],
         pivotal_id: pivotal_id
