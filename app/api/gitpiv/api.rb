@@ -70,7 +70,7 @@ module Gitpiv
       pivotal_id = find_pivotal_id(github_body, github_branch)
       
       if pivotal_id.present?
-        if github_action == "opened"
+        if github_action == "opened" || github_action == "reopened"
           change_story_state!(pivotal_id, github_pr_url, github_author, 'finished')
           yagpi_action_taken = "finish"
         elsif github_action == "closed"
