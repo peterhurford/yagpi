@@ -36,7 +36,7 @@ module Gitpiv
         if ENV['POST_TO_GITHUB'] != 1
           connect_to_github!
           urlparts = github_pr_url.split('/')
-          Octokit.post("/repos/#{urlparts[3]}/#{urlparts[4]}/issues/#{urlparts[6]}/comments", options = { body: "Could you post the Pivotal ID, please?" })
+          Octokit.post("/repos/#{urlparts[3]}/#{urlparts[4]}/issues/#{urlparts[6]}/comments", options = { body: "Could you post the Pivotal ID?  Please update the description of the PR with the Pivotal ID, then close and reopen this PR." })
           return true
         end
         false
