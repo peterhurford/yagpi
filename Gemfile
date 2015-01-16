@@ -4,6 +4,7 @@ gem 'rails', '4.1.1'
 gem 'grape'
 gem 'hashie_rails'
 gem 'rest-client'
+gem 'octokit', '~> 3.0'
 
 group :development, :test do
   gem 'sqlite3', '1.3.8'

@@ -14,13 +14,32 @@ module Gitpiv
 
       def connect_to_pivotal!
         error!('PIVOTAL_API_KEY not set', 500) unless ENV['PIVOTAL_API_KEY'].present?
-        @conn ||= RestClient::Resource.new("https://www.pivotaltracker.com/services/v5", :headers => {'X-TrackerToken' => ENV['PIVOTAL_API_KEY'], 'Content-Type' => 'application/json'})
+        @pivotal_conn ||= RestClient::Resource.new("https://www.pivotaltracker.com/services/v5", :headers => {'X-TrackerToken' => ENV['PIVOTAL_API_KEY'], 'Content-Type' => 'application/json'})
       end
 
-      def change_story_state(pivotal_id, github_pr_url, github_author, pivotal_action)
+      def connect_to_github!
+        error!('GITHUB_USERNAME not set', 500) unless ENV['GITHUB_USERNAME'].present?
+        error!('GITHUB_PASSWORD not set', 500) unless ENV['GITHUB_PASSWORD'].present?
+        Octokit.configure do |c|
+          c.login = ENV['GITHUB_USERNAME']
+          c.password = ENV['GITHUB_PASSWORD']
+        end
+      end
+
+      def change_story_state!(pivotal_id, github_pr_url, github_author, pivotal_action)
         connect_to_pivotal!
         pivotal_verb = (pivotal_action == 'finished' ? "Finishes" : "Delivers")
-        @conn["source_commit"].post("{'source_commit':{'commit_id':'','message':'[#{pivotal_verb} ##{pivotal_id}] #{pivotal_action.capitalize} via YAGPI GitHub Webhook.','url':'#{github_pr_url}','author':'#{github_author}'}}")
+        @pivotal_conn["source_commit"].post("{'source_commit':{'commit_id':'','message':'[#{pivotal_verb} ##{pivotal_id}] #{pivotal_action.capitalize} via YAGPI GitHub Webhook.','url':'#{github_pr_url}','author':'#{github_author}'}}")
+      end
+
+      def nag_for_a_pivotal_id!(github_pr_url)
+        if ENV['POST_TO_GITHUB'] != 1
+          connect_to_github!
+          urlparts = github_pr_url.split('/')
+          Octokit.post("/repos/#{urlparts[3]}/#{urlparts[4]}/issues/#{urlparts[6]}/comments", options = { body: "Could you post the Pivotal ID, please?" }) })
+          return true
+        end
+        false
       end
     end
 
@@ -52,14 +71,17 @@ module Gitpiv
       
       if pivotal_id.present?
         if github_action == "opened"
-          change_story_state(pivotal_id, github_pr_url, github_author, 'finished')
-          pivotal_action_taken = "finish"
+          change_story_state!(pivotal_id, github_pr_url, github_author, 'finished')
+          yagpi_action_taken = "finish"
         elsif github_action == "closed"
-          change_story_state(pivotal_id, github_pr_url, github_author, 'delivered')
-          pivotal_action_taken = "deliver"
+          change_story_state!(pivotal_id, github_pr_url, github_author, 'delivered')
+          yagpi_action_taken = "deliver"
         else
-          pivotal_action_taken = "none"
+          yagpi_action_taken = "none"
         end
+      else 
+        o = nag_for_a_pivotal_id!(github_pr_url)
+        yagpi_action_taken = o ? "nag" : "nag disabled"
       end
       
       {
@@ -67,7 +89,7 @@ module Gitpiv
         detected_pivotal_id: pivotal_id,
         detected_github_pr_url: github_pr_url,
         detected_github_author: github_author,
-        pivotal_action: pivotal_action_taken
+        pivotal_action: yagpi_action_taken
       }
     end
   end
