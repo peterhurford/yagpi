@@ -33,8 +33,7 @@ module Gitpiv
 
     desc 'Receive PR information from GitHub'
     post '/github_hook' do
-      github_check_ping = params['zen']
-      return {status: 'ping_received'} if params['zen'] == 'Responsive is better than fast.'
+      return {status: 'ping_received'} if params['zen'].present? && params['zen'] == 'Responsive is better than fast.'
 
       github_payload = params['pull_request']
       error!('No payload', 500) unless github_payload.present?
@@ -50,15 +49,17 @@ module Gitpiv
       error!('No author', 500) unless github_author.present?
 
       pivotal_id = find_pivotal_id(github_body, github_branch)
-
-      if github_action == "opened"
-        change_story_state(pivotal_id, github_pr_url, github_author, 'finished')
-        pivotal_action_taken = "finish"
-      elsif github_action == "closed"
-        change_story_state(pivotal_id, github_pr_url, github_author, 'delivered')
-        pivotal_action_taken = "deliver"
-      else
-        pivotal_action_taken = "none"
+      
+      if pivotal_id.present?
+        if github_action == "opened"
+          change_story_state(pivotal_id, github_pr_url, github_author, 'finished')
+          pivotal_action_taken = "finish"
+        elsif github_action == "closed"
+          change_story_state(pivotal_id, github_pr_url, github_author, 'delivered')
+          pivotal_action_taken = "deliver"
+        else
+          pivotal_action_taken = "none"
+        end
       end
       
       {
