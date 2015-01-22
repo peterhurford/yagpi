@@ -80,7 +80,7 @@ module Gitpiv
             change_story_state!(pivotal_id, github_pr_url, github_author, 'delivered')
             yagpi_action_taken = "deliver"
           end
-        else 
+        elsif github_action != "closed" 
           o = nag_for_a_pivotal_id!(github_pr_url)
           yagpi_action_taken = o ? "nag" : "nag disabled"
         end
