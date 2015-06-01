@@ -10,3 +10,10 @@ I did a lot of Googling and found about three dozen different ways to connect Gi
 Because many of our tasks don't involve deploying, we don't have to worry about continuous integration or any of that.
 
 YAGPI implements that workflow.
+
+
+## Installation
+
+* Clone this repo.
+* Host YAGPI on a server.
+* Set up a GitHub webhook to connect to `/api/v1/github_hook` on your hosted domain.  The webhook should receive "Pull Request".
