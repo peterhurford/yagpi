@@ -1,5 +1,7 @@
 ## YAGPI (Yet Another Github-Pivotal Integration)
 
+## This app is obsoleted by [YAGPI2](https://github.com/peterhurford/yagpi2).
+
 I did a lot of Googling and found about three dozen different ways to connect GitHub and Pivotal Tracker.  This includes very popular choices like the Pivotal Tracker GitHub webhook and Zapier.
 
 ...None of these integrations support the workflow I want, which is as follows:
